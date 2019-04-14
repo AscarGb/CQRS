@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CQRS.Domain.Commands.Handler
 {
-    public class SaveUserCommandHandler : ICommandHandler<SaveUserCommand, CommandResponse>
+    public class SaveUserCommandHandler : ICommandHandler<SaveUserCommand,Task<CommandResponse>>
     {
         private readonly SaveUserCommand _command;
         UserManager<IdentityUser> _userManager;
@@ -19,7 +19,7 @@ namespace CQRS.Domain.Commands.Handler
             _userManager = userManager;
 
         }
-        public async Task<CommandResponse> ExecuteAsync()
+        public async Task<CommandResponse> Execute()
         {
             IdentityUser user = new IdentityUser { UserName = _command.User.Name };
 

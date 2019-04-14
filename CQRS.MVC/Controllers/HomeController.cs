@@ -29,7 +29,7 @@ namespace CQRS.MVC.Controllers
         {
             var query = new AllUsersQuery();
             var handler = _userQueryHandlerFactory.Build(query);
-            var users = await handler.GetAsync();
+            var users = await handler.Get();
             return Ok(users);
         }
 
@@ -38,7 +38,7 @@ namespace CQRS.MVC.Controllers
         {
             var query = new OneUserQuery { Name = name };
             var handler = _userQueryHandlerFactory.Build(query);
-            var user = await handler.GetAsync();
+            var user = await handler.Get();
 
             if (user == null)
                 return NotFound(name);
@@ -51,7 +51,7 @@ namespace CQRS.MVC.Controllers
         {
             var command = new SaveUserCommand(new User { Name = name }, password);
             var handler = _userCommandHandlerFactory.Build(command);
-            var cResponse = await handler.ExecuteAsync();
+            var cResponse = await handler.Execute();
 
             return Ok(cResponse);            
         }

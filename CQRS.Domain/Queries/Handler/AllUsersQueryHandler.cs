@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace CQRS.Domain.Queries.Handler
 {
-    public class AllUsersQueryHandler : IQueryHandler<AllUsersQuery, IEnumerable<User>>
+    public class AllUsersQueryHandler : IQueryHandler<AllUsersQuery, Task<IEnumerable<User>>>
     {
         UserManager<IdentityUser> _userManager;
         public AllUsersQueryHandler(UserManager<IdentityUser> userManager)
@@ -20,7 +20,7 @@ namespace CQRS.Domain.Queries.Handler
             _userManager = userManager;
         }
 
-        public async Task<IEnumerable<User>> GetAsync()
+        public async Task<IEnumerable<User>> Get()
         {
             var users = await _userManager.Users
                 .ToListAsync();

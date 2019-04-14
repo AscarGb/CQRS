@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CQRS.Domain.Commands
 {
@@ -16,7 +17,7 @@ namespace CQRS.Domain.Commands
         {
             _userManager = userManager;
         }
-        public ICommandHandler<SaveUserCommand, CommandResponse> Build(SaveUserCommand command)
+        public ICommandHandler<SaveUserCommand, Task<CommandResponse>> Build(SaveUserCommand command)
         {
             return new SaveUserCommandHandler(command, _userManager);
         }

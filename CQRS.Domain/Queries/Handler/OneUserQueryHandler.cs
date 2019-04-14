@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CQRS.Domain.Queries.Handler
 {
-    public class OneUserQueryHandler : IQueryHandler<OneUserQuery, User>
+    public class OneUserQueryHandler : IQueryHandler<OneUserQuery, Task<User>>
     {
         private readonly OneUserQuery _query;
         UserManager<IdentityUser> _userManager;
@@ -19,7 +19,7 @@ namespace CQRS.Domain.Queries.Handler
             _userManager = userManager;
         }
 
-        public async Task<User> GetAsync()
+        public async Task<User> Get()
         {
             var u = await _userManager.FindByNameAsync(_query.Name);
 

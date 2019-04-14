@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CQRS.Domain.Queries
 {
@@ -17,12 +18,12 @@ namespace CQRS.Domain.Queries
             _userManager = userManager;
         }
 
-        public IQueryHandler<AllUsersQuery, IEnumerable<User>> Build(AllUsersQuery query)
+        public IQueryHandler<AllUsersQuery, Task<IEnumerable<User>>> Build(AllUsersQuery query)
         {
             return new AllUsersQueryHandler(_userManager);
         }
 
-        public IQueryHandler<OneUserQuery, User> Build(OneUserQuery query)
+        public IQueryHandler<OneUserQuery, Task<User>> Build(OneUserQuery query)
         {
             return new OneUserQueryHandler(query, _userManager);
         }
