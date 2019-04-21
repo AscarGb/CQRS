@@ -15,6 +15,12 @@ using Microsoft.EntityFrameworkCore;
 using CQRS.Data;
 using CQRS.Domain.Commands;
 using CQRS.Domain.Queries;
+using Microsoft.AspNetCore.Diagnostics;
+using CQRS.Domain.Exceptions;
+using CQRS.Domain.Commands.Command;
+using CQRS.Common;
+using CQRS.Domain.Pipelines;
+using CQRS.Domain.Handlers;
 
 namespace CQRS.MVC
 {
@@ -33,6 +39,14 @@ namespace CQRS.MVC
             services.AddTransient<DbInitializer>();
             services.AddTransient<UserCommandHandlerFactory>();
             services.AddTransient<UserQueryHandlerFactory>();
+
+            //handlers
+            services.AddTransient<CheckSecurityUserHandler>();
+            services.AddTransient<ValidateUserHandler>();
+            //pipes
+            services.AddTransient<Pipeline<SaveUserCommand>>();
+            //pipes builders
+            services.AddSingleton<CreateUserPipelineBuilder>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -54,6 +68,7 @@ namespace CQRS.MVC
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            /*
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -63,6 +78,46 @@ namespace CQRS.MVC
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+            */
+
+            app.UseExceptionHandler(errorApp =>
+            {
+                errorApp.Run(async context =>
+                {
+                    var feature = context.Features.Get<IExceptionHandlerFeature>();
+                    var error = feature?.Error;
+
+                    switch (error)
+                    {
+                        case NotFoundException exc:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                                await context.Response.WriteAsync(exc.Message);
+                            }
+                            break;
+                        case UserCreateException exc:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                await context.Response.WriteAsync(exc.Message);
+                            }
+                            break;
+                        case ValidateException exc:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status418ImATeapot;
+                                await context.Response.WriteAsync(exc.Message);
+                            }
+                            break;
+                        default:
+                            {
+                                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                                await context.Response.WriteAsync("Error");
+                            }
+                            break;
+                    }
+                });
+            });
+
+            //app.UseStatusCodePages();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

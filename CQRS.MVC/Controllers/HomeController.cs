@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using CQRS.Data;
 using System.Collections.Generic;
 using CQRS.Domain.Commands.Command;
+using CQRS.Domain.Pipelines;
 
 namespace CQRS.MVC.Controllers
 {
@@ -16,12 +17,15 @@ namespace CQRS.MVC.Controllers
     {
         UserCommandHandlerFactory _userCommandHandlerFactory;
         UserQueryHandlerFactory _userQueryHandlerFactory;
+        CreateUserPipelineBuilder _createUserPipelineBuilder;
 
         public HomeController(UserQueryHandlerFactory userQueryHandlerFactory,
-            UserCommandHandlerFactory userCommandHandlerFactory)
+            UserCommandHandlerFactory userCommandHandlerFactory,
+            CreateUserPipelineBuilder createUserPipelineBuilder)
         {
             _userQueryHandlerFactory = userQueryHandlerFactory;
             _userCommandHandlerFactory = userCommandHandlerFactory;
+            _createUserPipelineBuilder = createUserPipelineBuilder;
         }
 
         [HttpGet]
@@ -40,20 +44,20 @@ namespace CQRS.MVC.Controllers
             var handler = _userQueryHandlerFactory.Build(query);
             var user = await handler.Get();
 
-            if (user == null)
-                return NotFound(name);
-            else
-                return Ok(user);
+            return Ok(user);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddUser(string name, string password)
         {
             var command = new SaveUserCommand(new User { Name = name }, password);
+
+            command = await _createUserPipelineBuilder.ProcessAsync(command);
+
             var handler = _userCommandHandlerFactory.Build(command);
             var cResponse = await handler.Execute();
 
-            return Ok(cResponse);            
+            return Ok(cResponse);
         }
 
         public IActionResult Index()

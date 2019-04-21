@@ -1,5 +1,6 @@
 ﻿using CQRS.Common;
 using CQRS.Data;
+using CQRS.Domain.Exceptions;
 using CQRS.Domain.Queries.Query;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -24,7 +25,7 @@ namespace CQRS.Domain.Queries.Handler
             var u = await _userManager.FindByNameAsync(_query.Name);
 
             if (u == null)
-                return null;
+                throw new NotFoundException($"user {_query.Name} not found");
 
             return new User { ID = u.Id, Name = u.UserName };
         }

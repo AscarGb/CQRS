@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace CQRS.Common
 {
-    public interface IQueryHandler<in TQuery, out TResponse> where TQuery : IQuery<TResponse>
-    {      
+    public interface IQueryHandler<in TQuery, out TResponse>         
+        where TQuery : IQuery<TResponse>
+    {
         TResponse Get();
     }
 }
