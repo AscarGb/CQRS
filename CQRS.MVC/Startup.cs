@@ -46,7 +46,7 @@ namespace CQRS.MVC
             //pipes
             services.AddTransient<Pipeline<SaveUserCommand>>();
             //pipes builders
-            services.AddSingleton<CreateUserPipelineBuilder>();
+            services.AddTransient<CreateUserPipelineBuilder>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
