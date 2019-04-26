@@ -20,7 +20,7 @@ namespace CQRS.Domain.Queries.Handler
             _userManager = userManager;
         }
 
-        public async Task<IEnumerable<User>> Get()
+        public async Task<IEnumerable<User>> Get(AllUsersQuery query)
         {
             var users = await _userManager.Users
                 .ToListAsync();

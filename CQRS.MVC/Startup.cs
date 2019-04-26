@@ -21,6 +21,10 @@ using CQRS.Domain.Commands.Command;
 using CQRS.Common;
 using CQRS.Domain.Pipelines;
 using CQRS.Domain.Handlers;
+using CQRS.Domain;
+using CQRS.Domain.Queries.Handler;
+using CQRS.Domain.Queries.Query;
+using CQRS.Domain.Commands.Handler;
 
 namespace CQRS.MVC
 {
@@ -37,8 +41,14 @@ namespace CQRS.MVC
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<DbInitializer>();
-            services.AddTransient<UserCommandHandlerFactory>();
-            services.AddTransient<UserQueryHandlerFactory>();
+            services.AddTransient<Messages>();
+
+            //query handlers
+            services.AddTransient<IQueryHandler<AllUsersQuery, Task<IEnumerable<User>>>, AllUsersQueryHandler>();
+            services.AddTransient<IQueryHandler<OneUserQuery, Task<User>>, OneUserQueryHandler>();
+
+            //command handlers
+            services.AddTransient<ICommandHandler<SaveUserCommand, Task<CommandResponse>>, SaveUserCommandHandler>();
 
             //handlers
             services.AddTransient<CheckSecurityUserHandler>();

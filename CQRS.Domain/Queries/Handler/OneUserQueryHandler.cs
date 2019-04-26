@@ -11,21 +11,19 @@ using System.Threading.Tasks;
 namespace CQRS.Domain.Queries.Handler
 {
     public class OneUserQueryHandler : IQueryHandler<OneUserQuery, Task<User>>
-    {
-        private readonly OneUserQuery _query;
+    {        
         UserManager<IdentityUser> _userManager;
-        public OneUserQueryHandler(OneUserQuery query, UserManager<IdentityUser> userManager)
-        {
-            _query = query;
+        public OneUserQueryHandler(UserManager<IdentityUser> userManager)
+        {          
             _userManager = userManager;
         }
 
-        public async Task<User> Get()
+        public async Task<User> Get(OneUserQuery query)
         {
-            var u = await _userManager.FindByNameAsync(_query.Name);
+            var u = await _userManager.FindByNameAsync(query.Name);
 
             if (u == null)
-                throw new NotFoundException($"user {_query.Name} not found");
+                throw new NotFoundException($"user {query.Name} not found");
 
             return new User { ID = u.Id, Name = u.UserName };
         }

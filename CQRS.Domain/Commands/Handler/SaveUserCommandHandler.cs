@@ -11,20 +11,18 @@ using System.Threading.Tasks;
 namespace CQRS.Domain.Commands.Handler
 {
     public class SaveUserCommandHandler : ICommandHandler<SaveUserCommand, Task<CommandResponse>>
-    {
-        private readonly SaveUserCommand _command;
+    {        
         UserManager<IdentityUser> _userManager;
-        public SaveUserCommandHandler(SaveUserCommand command, UserManager<IdentityUser> userManager)
-        {
-            _command = command;
+        public SaveUserCommandHandler(UserManager<IdentityUser> userManager)
+        {            
             _userManager = userManager;
 
         }
-        public async Task<CommandResponse> Execute()
+        public async Task<CommandResponse> Execute(SaveUserCommand command)
         {
-            IdentityUser user = new IdentityUser { UserName = _command.User.Name };
+            IdentityUser user = new IdentityUser { UserName = command.User.Name };
 
-            var r = await _userManager.CreateAsync(user, _command.Password);
+            var r = await _userManager.CreateAsync(user, command.Password);
             if (r.Succeeded)
             {
                 return new CommandResponse { ID = user.Id, Success = true };

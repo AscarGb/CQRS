@@ -10,40 +10,36 @@ using CQRS.Data;
 using System.Collections.Generic;
 using CQRS.Domain.Commands.Command;
 using CQRS.Domain.Pipelines;
+using CQRS.Domain;
 
 namespace CQRS.MVC.Controllers
 {
     public class HomeController : Controller
     {
-        UserCommandHandlerFactory _userCommandHandlerFactory;
-        UserQueryHandlerFactory _userQueryHandlerFactory;
+        Messages _messages;
+
         CreateUserPipelineBuilder _createUserPipelineBuilder;
 
-        public HomeController(UserQueryHandlerFactory userQueryHandlerFactory,
-            UserCommandHandlerFactory userCommandHandlerFactory,
-            CreateUserPipelineBuilder createUserPipelineBuilder)
-        {
-            _userQueryHandlerFactory = userQueryHandlerFactory;
-            _userCommandHandlerFactory = userCommandHandlerFactory;
+        public HomeController(CreateUserPipelineBuilder createUserPipelineBuilder,
+            Messages messages)
+        {           
             _createUserPipelineBuilder = createUserPipelineBuilder;
+            _messages = messages;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
             var query = new AllUsersQuery();
-            var handler = _userQueryHandlerFactory.Build(query);
-            var users = await handler.Get();
+            var users = await _messages.Dispatch(query);            
             return Ok(users);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetUser(string name)
         {
-            var query = new OneUserQuery { Name = name };
-            var handler = _userQueryHandlerFactory.Build(query);
-            var user = await handler.Get();
-
+            var query = new OneUserQuery { Name = name };            
+            var user = await _messages.Dispatch(query);
             return Ok(user);
         }
 
@@ -52,11 +48,9 @@ namespace CQRS.MVC.Controllers
         {
             var command = new SaveUserCommand(new User { Name = name }, password);
 
-            command = await _createUserPipelineBuilder.ProcessAsync(command);
+            command = await _createUserPipelineBuilder.ProcessAsync(command);            
 
-            var handler = _userCommandHandlerFactory.Build(command);
-            var cResponse = await handler.Execute();
-
+            var cResponse = await _messages.Dispatch(command);
             return Ok(cResponse);
         }
 
